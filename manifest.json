@@ -6,16 +6,14 @@
         "api" : "1.1-0",
         "dev_id" : 0,
         "prg_id" : 0,
-        "version" : "0.3-10",
+        "version" : "0.5-4",
         "name" : "noisy",
-        "num_param" : 6,
+        "num_param" : 4,
         "params" : [
             ["Attack",     0, 100, "%"],
             ["Release", -100, 100, "%"],
-            ["dummy2",     0, 100, "%"],
-            ["dummy3",     0, 100, "%"],
-            ["dummy4",  -100, 100, "%"],
-            ["dummy5",     0, 10,  ""]
+            ["NoiseType",  0,   2,  ""],
+            ["Decimate",   1, 100,  ""]
           ]
     }
 }

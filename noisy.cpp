@@ -6,9 +6,13 @@
  *
  */
 
+#include "pink.hpp"
+#include "decim.hpp"
 #include "noisy.hpp"
 
 static State s = {};
+static PinkNoise pinkNoise;
+static DecimatedNoise decimNoise;
 
 void calculateReleaseResistance()
 {
@@ -39,6 +43,7 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.noteDown = false;
     s.attackPhaseComplete = false;
     s.releasePhaseComplete = true;
+    s.noiseType = NOISETYPE_WHITE;
 
     calculateReleaseResistance();
 }
@@ -107,6 +112,28 @@ void getNewLevel()
     }
 }
 
+float genNoise()
+{
+    switch (s.noiseType)
+    {
+        case NOISETYPE_WHITE:
+            return osc_white();
+            break;
+
+        case NOISETYPE_PINK:
+            pinkNoise.Tick();
+            return pinkNoise.GetValue();
+            break;
+
+        case NOISETYPE_DECIM:
+            decimNoise.Tick();
+            return decimNoise.GetValue();
+            break;
+    }
+
+    return 0.f;
+}
+
 void OSC_CYCLE(const user_osc_param_t * const params,
         int32_t *yn,
         const uint32_t frames)
@@ -117,7 +144,7 @@ void OSC_CYCLE(const user_osc_param_t * const params,
     for (uint32_t i = 0; i < frames; i++)
     {
         getNewLevel();
-        output = osc_white();
+        output = genNoise();
         output *= s.currentLevel;
         yn[i] = f32_to_q31(output);
     }
@@ -155,6 +182,14 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             }
             break;
 
+        case k_user_osc_param_id3: // Noise Type
+            s.noiseType = value;
+            break;
+
+        case k_user_osc_param_id4: // Decimate
+            decimNoise.SetDecimationFactor(value);
+            break;
+
         case k_user_osc_param_shape: // Decay
             s.decayResistance = param_val_to_f32(value) * DECAY_MULT;
             s.decayResistance++;
@@ -170,7 +205,3 @@ void OSC_PARAM(uint16_t index, uint16_t value)
     }
 }
 
-void nothing()
-{
-    return;
-}

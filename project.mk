@@ -6,12 +6,12 @@ PROJECT = noisy
 
 UCSRC =
 
-UCXXSRC = noisy.cpp
+UCXXSRC = noisy.cpp pink.cpp decim.cpp
 
 UINCDIR =
 
 UDEFS =
 
-ULIB = 
+ULIB =
 
 ULIBDIR =

@@ -19,6 +19,10 @@
 #define CAPACITANCE 1
 #define TARGET_LEVEL_OFFSET 0.01f
 
+#define NOISETYPE_WHITE 0
+#define NOISETYPE_PINK 1
+#define NOISETYPE_DECIM 2
+
 struct State {
     float currentLevel;
 
@@ -31,4 +35,7 @@ struct State {
     bool noteDown;
     bool attackPhaseComplete;
     bool releasePhaseComplete;
+
+    int32_t noiseType;
 };
+
