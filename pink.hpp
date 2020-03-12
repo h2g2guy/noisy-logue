@@ -9,13 +9,17 @@
 
 #define PINK_NUM_BUFFERS 8
 
-class PinkNoise
+#include "noisegen.hpp"
+
+class PinkNoise : public NoiseGenerator
 {
 public:
     PinkNoise();
 
-    void Tick();
-    float GetValue();
+    virtual void Tick() override;
+    virtual float GetValue() override;
+
+    virtual ~PinkNoise() override {};
 
 private:
     float buffers[PINK_NUM_BUFFERS];

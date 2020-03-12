@@ -6,13 +6,31 @@
  *
  */
 
+#include "noisegen.hpp"
+#include "white.hpp"
 #include "pink.hpp"
 #include "decim.hpp"
 #include "noisy.hpp"
 
+extern "C" int __aeabi_atexit(
+        void *object,
+        void (*destructor)(void *),
+        void *dso_handle)
+{
+    static_cast<void>(object);
+    static_cast<void>(destructor);
+    static_cast<void>(dso_handle);
+    return 0;
+}
+
+extern "C" void operator delete(void*)
+{
+    return;
+}
+
+void* __dso_handle = nullptr;
+
 static State s = {};
-static PinkNoise pinkNoise;
-static DecimatedNoise decimNoise;
 
 void calculateReleaseResistance()
 {
@@ -31,6 +49,7 @@ void calculateReleaseResistance()
     s.releaseResistance++; // we can't be having zero
 }
 
+
 void OSC_INIT(uint32_t platform, uint32_t api)
 {
     (void)platform;
@@ -44,6 +63,11 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.attackPhaseComplete = false;
     s.releasePhaseComplete = true;
     s.noiseType = NOISETYPE_WHITE;
+
+    // add noise generators to state array
+    s.noiseGens[0] = &(s.whiteNoise);
+    s.noiseGens[1] = &(s.pinkNoise);
+    s.noiseGens[2] = &(s.decimNoise);
 
     calculateReleaseResistance();
 }
@@ -114,24 +138,8 @@ void getNewLevel()
 
 float genNoise()
 {
-    switch (s.noiseType)
-    {
-        case NOISETYPE_WHITE:
-            return osc_white();
-            break;
-
-        case NOISETYPE_PINK:
-            pinkNoise.Tick();
-            return pinkNoise.GetValue();
-            break;
-
-        case NOISETYPE_DECIM:
-            decimNoise.Tick();
-            return decimNoise.GetValue();
-            break;
-    }
-
-    return 0.f;
+    s.noiseGens[s.noiseType]->Tick();
+    return s.noiseGens[s.noiseType]->GetValue();
 }
 
 void OSC_CYCLE(const user_osc_param_t * const params,
@@ -187,7 +195,7 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             break;
 
         case k_user_osc_param_id4: // Decimate
-            decimNoise.SetDecimationFactor(value);
+            s.decimNoise.SetDecimationFactor(value);
             break;
 
         case k_user_osc_param_shape: // Decay

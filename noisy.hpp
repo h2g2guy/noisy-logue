@@ -22,8 +22,11 @@
 #define NOISETYPE_WHITE 0
 #define NOISETYPE_PINK 1
 #define NOISETYPE_DECIM 2
+#define NOISETYPE_COUNT 3
 
-struct State {
+struct State
+{
+public:
     float currentLevel;
 
     int32_t attackResistance;
@@ -37,5 +40,10 @@ struct State {
     bool releasePhaseComplete;
 
     int32_t noiseType;
+    NoiseGenerator* noiseGens[NOISETYPE_COUNT];
+
+    WhiteNoise whiteNoise;
+    PinkNoise pinkNoise;
+    DecimatedNoise decimNoise;
 };
 

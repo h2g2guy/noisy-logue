@@ -7,13 +7,19 @@
  *
  */
 
-class DecimatedNoise
+#include "noisegen.hpp"
+
+class DecimatedNoise : public NoiseGenerator
 {
 public:
     DecimatedNoise();
 
-    void Tick();
-    float GetValue();
+    virtual void Tick() override;
+    virtual float GetValue() override;
+    
+    virtual ~DecimatedNoise() override {};
+
+    // make this into a generic version eventually, once other noise generators are modulatable l
     void SetDecimationFactor(int factor);
 
 private:

@@ -6,7 +6,7 @@ PROJECT = noisy
 
 UCSRC =
 
-UCXXSRC = noisy.cpp pink.cpp decim.cpp
+UCXXSRC = noisy.cpp white.cpp pink.cpp decim.cpp
 
 UINCDIR =
 
