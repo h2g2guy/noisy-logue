@@ -7,9 +7,6 @@
  */
 
 #include "noisegen.hpp"
-#include "white.hpp"
-#include "pink.hpp"
-#include "decim.hpp"
 #include "noisy.hpp"
 
 extern "C" int __aeabi_atexit(
@@ -67,7 +64,8 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     // add noise generators to state array
     s.noiseGens[0] = &(s.whiteNoise);
     s.noiseGens[1] = &(s.pinkNoise);
-    s.noiseGens[2] = &(s.decimNoise);
+    s.noiseGens[2] = &(s.redNoise);
+    s.noiseGens[3] = &(s.decimNoise);
 
     calculateReleaseResistance();
 }

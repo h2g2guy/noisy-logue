@@ -8,6 +8,10 @@
  */
 
 #include "userosc.h"
+#include "white.hpp"
+#include "pink.hpp"
+#include "red.hpp"
+#include "decim.hpp"
 
 #define TRUE 1
 #define FALSE 0
@@ -21,8 +25,9 @@
 
 #define NOISETYPE_WHITE 0
 #define NOISETYPE_PINK 1
-#define NOISETYPE_DECIM 2
-#define NOISETYPE_COUNT 3
+#define NOISETYPE_RED 2
+#define NOISETYPE_DECIM 3
+#define NOISETYPE_COUNT 4
 
 struct State
 {
@@ -44,6 +49,7 @@ public:
 
     WhiteNoise whiteNoise;
     PinkNoise pinkNoise;
+    RedNoise redNoise;
     DecimatedNoise decimNoise;
 };
 
