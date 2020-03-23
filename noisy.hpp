@@ -37,12 +37,11 @@ public:
     int32_t attackResistance;
     int32_t decayResistance;
     float sustainLevel;
-    int32_t releaseResistance;
     int32_t releaseFactor;
+    int32_t releaseResistance;
 
     bool noteDown;
     bool attackPhaseComplete;
-    bool releasePhaseComplete;
 
     int32_t noiseType;
     NoiseGenerator* noiseGens[NOISETYPE_COUNT];

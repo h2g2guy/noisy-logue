@@ -40,7 +40,7 @@ void calculateReleaseResistance()
     }
     else
     {
-        float multiplier = (float)(s.releaseFactor + 100.f) / 100.f;
+        float multiplier = ((float)s.releaseFactor + 100.f) / 100.f;
         s.releaseResistance = multiplier * s.decayResistance;
     }
     s.releaseResistance++; // we can't be having zero
@@ -52,22 +52,23 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     (void)platform;
     (void)api;
     s.currentLevel = 0.f;
+
     s.attackResistance = 1;
     s.decayResistance = 1;
-    s.releaseFactor = 0;
     s.sustainLevel = 0.f;
+    s.releaseFactor = 0;
+    calculateReleaseResistance();
+
     s.noteDown = false;
     s.attackPhaseComplete = false;
-    s.releasePhaseComplete = true;
+
     s.noiseType = NOISETYPE_WHITE;
 
     // add noise generators to state array
-    s.noiseGens[0] = &(s.whiteNoise);
-    s.noiseGens[1] = &(s.pinkNoise);
-    s.noiseGens[2] = &(s.redNoise);
-    s.noiseGens[3] = &(s.decimNoise);
-
-    calculateReleaseResistance();
+    s.noiseGens[NOISETYPE_WHITE] = &(s.whiteNoise);
+    s.noiseGens[NOISETYPE_PINK] = &(s.pinkNoise);
+    s.noiseGens[NOISETYPE_RED] = &(s.redNoise);
+    s.noiseGens[NOISETYPE_DECIM] = &(s.decimNoise);
 }
 
 bool targetLevelReached(float targetLevel, float currentLevel)
@@ -117,20 +118,8 @@ void getNewLevel()
     }
     else
     {
-        if (!(s.releasePhaseComplete))
-        {
-            // release phase
-            s.currentLevel = clip0f(s.currentLevel + getChangeInLevel(0.f, s.currentLevel, s.releaseResistance));
-            if (targetLevelReached(0.f, s.currentLevel))
-            {
-                s.releasePhaseComplete = true;
-            }
-        }
-        else
-        {
-            // "off" phase
-            s.currentLevel = 0.f;
-        }
+        // release/off phase
+        s.currentLevel = clip0f(s.currentLevel + getChangeInLevel(0.f, s.currentLevel, s.releaseResistance));
     }
 }
 
@@ -170,7 +159,6 @@ void OSC_NOTEOFF(const user_osc_param_t * const params)
 {
     (void)params;
     s.noteDown = false;
-    s.releasePhaseComplete = false;
 }
 
 void OSC_PARAM(uint16_t index, uint16_t value)
