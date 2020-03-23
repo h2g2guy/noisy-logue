@@ -58,6 +58,7 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.sustainLevel = 0.f;
     s.releaseFactor = 0;
     calculateReleaseResistance();
+    s.releaseFactor = 101; //set to an impossible sentinel value to workaround weird prologue bug
 
     s.noteDown = false;
     s.attackPhaseComplete = false;
@@ -171,6 +172,14 @@ void OSC_PARAM(uint16_t index, uint16_t value)
 
         case k_user_osc_param_id2: // Release
             {
+                if (value == 0 && s.releaseFactor == 101)
+                {
+                    // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it 
+                    // should instead be the correctly-scaled zero point. account for that case here.
+                    s.releaseFactor = 0;
+                    calculateReleaseResistance();
+                    break;
+                }
                 s.releaseFactor = value - 100;
                 calculateReleaseResistance();
             }
