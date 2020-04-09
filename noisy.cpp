@@ -174,7 +174,7 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             {
                 if (value == 0 && s.releaseFactor == 101)
                 {
-                    // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it 
+                    // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it
                     // should instead be the correctly-scaled zero point. account for that case here.
                     s.releaseFactor = 0;
                     calculateReleaseResistance();
