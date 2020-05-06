@@ -9,7 +9,7 @@
 #include "userosc.h"
 #include "pink.hpp"
 
-PinkNoise::PinkNoise()
+PinkNoise::PinkNoise(State* s) : NoiseGenerator(s)
 {
     // initialize buffers
     for (int i = 0; i < PINK_NUM_BUFFERS; i++)

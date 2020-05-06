@@ -7,7 +7,11 @@
  */
 
 #include "noisegen.hpp"
-#include "noisy.hpp"
+#include "white.hpp"
+#include "pink.hpp"
+#include "red.hpp"
+#include "decim.hpp"
+#include "state.hpp"
 
 extern "C" int __aeabi_atexit(
         void *object,
@@ -70,6 +74,8 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.noiseGens[NOISETYPE_PINK] = &(s.pinkNoise);
     s.noiseGens[NOISETYPE_RED] = &(s.redNoise);
     s.noiseGens[NOISETYPE_DECIM] = &(s.decimNoise);
+
+    s.lfoTarget = TARGETSELECT_VOLUME;
 }
 
 bool targetLevelReached(float targetLevel, float currentLevel)
@@ -134,14 +140,23 @@ void OSC_CYCLE(const user_osc_param_t * const params,
         int32_t *yn,
         const uint32_t frames)
 {
-    (void)params;
     float output = 0.f;
 
     for (uint32_t i = 0; i < frames; i++)
     {
-        getNewLevel();
+        // Generate noise of the right type
         output = genNoise();
-        output *= s.currentLevel;
+
+        // Get level, modify it, and apply it
+        getNewLevel();
+        float level = s.currentLevel;
+        if (s.lfoTarget | TARGETSELECT_VOLUME)
+        {
+            level = clip01f(level + q31_to_f32(params->shape_lfo));
+        }
+        output *= level;
+
+        // Output
         yn[i] = f32_to_q31(output);
     }
 }
@@ -166,6 +181,16 @@ void OSC_PARAM(uint16_t index, uint16_t value)
 {
     switch (index)
     {
+        case k_user_osc_param_shape: // Decay
+            s.decayResistance = param_val_to_f32(value) * DECAY_MULT;
+            s.decayResistance++;
+            calculateReleaseResistance(); // release is based on decay, so recalculate it here
+            break;
+
+        case k_user_osc_param_shiftshape: // Sustain
+            s.sustainLevel = param_val_to_f32(value);
+            break;
+
         case k_user_osc_param_id1: // Attack
             s.attackResistance = value * ATTACK_MULT + 1;
             break;
@@ -193,15 +218,10 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             s.decimNoise.SetDecimationFactor(value);
             break;
 
-        case k_user_osc_param_shape: // Decay
-            s.decayResistance = param_val_to_f32(value) * DECAY_MULT;
-            s.decayResistance++;
-            calculateReleaseResistance(); // release is based on decay, so recalculate it here
+        case k_user_osc_param_id5: // LFO target
+            s.lfoTarget = value + 1;
             break;
 
-        case k_user_osc_param_shiftshape: // Sustain
-            s.sustainLevel = param_val_to_f32(value);
-            break;
 
         default:
             break;

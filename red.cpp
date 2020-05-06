@@ -12,7 +12,7 @@
 constexpr float leakMultiplier = 0.96f;
 constexpr float newInputWeight = 0.2f;
 
-RedNoise::RedNoise()
+RedNoise::RedNoise(State* s) : NoiseGenerator(s)
 {
     buffer = 0.f;
 }

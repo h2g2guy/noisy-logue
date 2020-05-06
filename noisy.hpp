@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * File: waves.hpp
+ * File: noisy.hpp
  *
  * Enveloped noise generator
  *
@@ -29,9 +29,14 @@
 #define NOISETYPE_DECIM 3
 #define NOISETYPE_COUNT 4
 
-struct State
+#define TARGETSELECT_VOLUME 1
+#define TARGETSELECT_MOD 2
+
+class State
 {
 public:
+    State() : whiteNoise(this), pinkNoise(this), redNoise(this), decimNoise(this) {}
+
     float currentLevel;
 
     int32_t attackResistance;
@@ -50,5 +55,7 @@ public:
     PinkNoise pinkNoise;
     RedNoise redNoise;
     DecimatedNoise decimNoise;
+
+    int32_t lfoTarget;
 };
 

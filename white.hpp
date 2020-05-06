@@ -8,11 +8,12 @@
  */
 
 #include "noisegen.hpp"
+#include "state.hpp"
 
 class WhiteNoise : public NoiseGenerator
 {
 public:
-    WhiteNoise();
+    WhiteNoise(State* s);
 
     virtual void Tick() override;
     virtual float GetValue() override;

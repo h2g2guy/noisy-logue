@@ -1,6 +1,5 @@
-
 /*
- * File: decim.hpp
+ * File: decim.cpp
  *
  * Decimating noise generator
  *
@@ -9,7 +8,7 @@
 #include "userosc.h"
 #include "decim.hpp"
 
-DecimatedNoise::DecimatedNoise()
+DecimatedNoise::DecimatedNoise(State* s) : NoiseGenerator(s)
 {
     buffer = 0.f;
     tick = 0;

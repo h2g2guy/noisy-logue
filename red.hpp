@@ -8,15 +8,16 @@
  */
 
 #include "noisegen.hpp"
+#include "state.hpp"
 
 class RedNoise : public NoiseGenerator
 {
 public:
-    RedNoise();
+    RedNoise(State* s);
 
     virtual void Tick() override;
     virtual float GetValue() override;
-    
+
     virtual ~RedNoise() override {};
 
 private:

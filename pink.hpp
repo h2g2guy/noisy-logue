@@ -10,11 +10,12 @@
 #define PINK_NUM_BUFFERS 8
 
 #include "noisegen.hpp"
+#include "state.hpp"
 
 class PinkNoise : public NoiseGenerator
 {
 public:
-    PinkNoise();
+    PinkNoise(State* s);
 
     virtual void Tick() override;
     virtual float GetValue() override;

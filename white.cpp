@@ -10,7 +10,7 @@
 #include "userosc.h"
 #include "white.hpp"
 
-WhiteNoise::WhiteNoise()
+WhiteNoise::WhiteNoise(State* s) : NoiseGenerator(s)
 {
     Tick();
 }
