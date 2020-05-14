@@ -87,6 +87,8 @@ void OSC_INIT(uint32_t platform, uint32_t api)
 
     s.noiseType = NOISETYPE_WHITE;
 
+    s.modValue = 101; //set to an impossible sentinel value to workaround weird prologue bug
+
     s.lfoTarget = TARGETSELECT_VOLUME;
 }
 
@@ -226,8 +228,18 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             s.noiseType = value;
             break;
 
-        case k_user_osc_param_id4: // Decimate
-            s.modValue = value - 100;
+        case k_user_osc_param_id4: // Noise mod
+            {
+                if (value == 0 && s.modValue == 101)
+                {
+                    // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it
+                    // should instead be the correctly-scaled zero point. account for that case here.
+                    s.modValue = 0;
+                    break;
+                }
+                s.modValue = value - 100;
+                calculateReleaseResistance();
+            }
             break;
 
         case k_user_osc_param_id5: // LFO target
