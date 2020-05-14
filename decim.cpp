@@ -16,21 +16,19 @@ DecimatedNoise::DecimatedNoise(State* s) : NoiseGenerator(s)
 
 void DecimatedNoise::Tick()
 {
-    // calculate decimation factor from mod value
-    int factor;
-    if (state->modValue >= 1)
+    // calculate decimation factor from mod value and LFO (as necessary)
+    int32_t factor = state->modValue * 2;
+    if (state->lfoTarget & TARGETSELECT_MOD)
     {
-        factor = state->modValue * 2;
+        factor += static_cast<int>(state->lfoLevel * 100);
     }
-    else
-    {
-        factor = 1;
-    }
+    factor = clipminmaxi32(1, factor, 400);
 
-    tick = (tick + 1) % factor;
-    if (tick == 0)
+    // tick and check if we're ready for the next sample
+    if (++tick >= factor)
     {
         buffer = osc_white();
+        tick = 0;
     }
 }
 

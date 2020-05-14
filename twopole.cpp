@@ -63,17 +63,13 @@ void Filter::calculateConstants(float cutoff, bool isHighPass)
     b2 = b2 / a0;
 }
 
-float ModValueToFrequency(int modValue)
+float ModValueToFrequency(int modValue, float lfo)
 {
-    float x;
+    float x = (float)modValue + (lfo * 100.f);
     if (modValue < 0)
     {
-        x = 100 + modValue;
-    }
-    else
-    {
-        x = modValue;
+        x += 100.f;
     }
 
-    return 20.f * fasterpowf(1000.f, x / 100.f);
+    return clipminmaxf(20.f, 20.f * fasterpowf(1000.f, x / 100.f), 20000.f);
 }

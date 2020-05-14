@@ -24,5 +24,5 @@ public:
 
 private:
     float buffer;
-    unsigned int tick;
+    int tick;
 };

@@ -22,4 +22,4 @@ private:
     void calculateConstants(float cutoff, bool isHighPass);
 };
 
-float ModValueToFrequency(int modValue);
+float ModValueToFrequency(int modValue, float lfo = 0.f);

@@ -19,9 +19,6 @@
 #define NOISETYPE_DECIM 3
 #define NOISETYPE_COUNT 4
 
-#define TARGETSELECT_VOLUME 1
-#define TARGETSELECT_MOD 2
-
 #include "noisegen.hpp"
 #include "white.hpp"
 #include "pink.hpp"
@@ -74,6 +71,7 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     (void)platform;
     (void)api;
     s.currentLevel = 0.f;
+    s.lfoLevel = 0.f;
 
     s.attackResistance = 1;
     s.decayResistance = 1;
@@ -154,6 +152,8 @@ void OSC_CYCLE(const user_osc_param_t * const params,
         int32_t *yn,
         const uint32_t frames)
 {
+    s.lfoLevel = q31_to_f32(params->shape_lfo);
+
     float output = 0.f;
 
     for (uint32_t i = 0; i < frames; i++)
@@ -166,7 +166,7 @@ void OSC_CYCLE(const user_osc_param_t * const params,
         float level = s.currentLevel;
         if (s.lfoTarget & TARGETSELECT_VOLUME)
         {
-            level = clip01f(level + q31_to_f32(params->shape_lfo));
+            level = clip01f(level + s.lfoLevel);
         }
         output *= level;
 

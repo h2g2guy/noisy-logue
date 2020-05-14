@@ -33,7 +33,8 @@ float RedNoise::GetValue()
     }
 
     // filter is engaged
-    float cutoff = ModValueToFrequency(state->modValue);
+    bool isLfoEngaged = (state->lfoTarget & TARGETSELECT_MOD);
+    float cutoff = ModValueToFrequency(state->modValue, (isLfoEngaged ? state->lfoLevel : 0.f));
     float output = filter.Process(buffer, cutoff, state->modValue > 0);
     return output;
 }

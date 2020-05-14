@@ -9,17 +9,17 @@
 
 #include "userosc.h"
 
+#define TARGETSELECT_VOLUME 1
+#define TARGETSELECT_MOD 2
+
 // Forward declarations to avoid circular dependencies
-class WhiteNoise;
-class PinkNoise;
-class RedNoise;
-class DecimatedNoise;
 
 struct State
 {
 public:
 
     float currentLevel;
+    float lfoLevel;
 
     int32_t attackResistance;
     int32_t decayResistance;
