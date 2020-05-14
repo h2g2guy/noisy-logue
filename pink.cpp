@@ -46,6 +46,19 @@ float PinkNoise::GetValue()
     }
     output /= (float) PINK_NUM_BUFFERS / 2.f;
 
+    // handle the filter
+    if (state->modValue == 0)
+    {
+        // filter is not engaged; return the prefiltered value
+        // still run the signal through a filter so we reduce clicks when switching to a highpass, though
+        filter.Process(output, 20.f, true);
+        return output;
+    }
+
+    // filter is engaged
+    float cutoff = ModValueToFrequency(state->modValue);
+    output = filter.Process(output, cutoff, state->modValue > 0);
+
     return output;
 }
 

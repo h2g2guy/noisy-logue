@@ -22,5 +22,16 @@ void WhiteNoise::Tick()
 
 float WhiteNoise::GetValue()
 {
-    return buffer;
+    if (state->modValue == 0)
+    {
+        // filter is not engaged; return the prefiltered value
+        // still run the signal through a filter so we reduce clicks when switching to a highpass, though
+        filter.Process(buffer, 20.f, true);
+        return buffer;
+    }
+
+    // filter is engaged
+    float cutoff = ModValueToFrequency(state->modValue);
+    float output = filter.Process(buffer, cutoff, state->modValue > 0);
+    return output;
 }

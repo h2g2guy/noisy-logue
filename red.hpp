@@ -9,6 +9,7 @@
 
 #include "noisegen.hpp"
 #include "state.hpp"
+#include "twopole.hpp"
 
 class RedNoise : public NoiseGenerator
 {
@@ -22,4 +23,5 @@ public:
 
 private:
     float buffer;
+    Filter filter;
 };

@@ -12,11 +12,21 @@ DecimatedNoise::DecimatedNoise(State* s) : NoiseGenerator(s)
 {
     buffer = 0.f;
     tick = 0;
-    factor = 1;
 }
 
 void DecimatedNoise::Tick()
 {
+    // calculate decimation factor from mod value
+    int factor;
+    if (state->modValue >= 1)
+    {
+        factor = state->modValue * 2;
+    }
+    else
+    {
+        factor = 1;
+    }
+
     tick = (tick + 1) % factor;
     if (tick == 0)
     {
@@ -27,16 +37,4 @@ void DecimatedNoise::Tick()
 float DecimatedNoise::GetValue()
 {
     return buffer;
-}
-
-void DecimatedNoise::SetDecimationFactor(int f)
-{
-    if (f >= 1)
-    {
-        factor = f * 2;
-    }
-    else
-    {
-        factor = 1;
-    }
 }

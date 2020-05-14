@@ -9,6 +9,7 @@
 
 #include "noisegen.hpp"
 #include "state.hpp"
+#include "twopole.hpp"
 
 class WhiteNoise : public NoiseGenerator
 {
@@ -22,5 +23,6 @@ public:
 
 private:
     float buffer;
+    Filter filter;
 };
 

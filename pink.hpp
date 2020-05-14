@@ -11,6 +11,7 @@
 
 #include "noisegen.hpp"
 #include "state.hpp"
+#include "twopole.hpp"
 
 class PinkNoise : public NoiseGenerator
 {
@@ -25,6 +26,6 @@ public:
 private:
     float buffers[PINK_NUM_BUFFERS];
     unsigned int tick;
-
+    Filter filter;
 };
 

@@ -6,12 +6,29 @@
  *
  */
 
+#define ATTACK_MULT 480
+#define DECAY_MULT 48000.f
+#define RELEASE_MULT_POS 480
+
+#define CAPACITANCE 1
+#define TARGET_LEVEL_OFFSET 0.01f
+
+#define NOISETYPE_WHITE 0
+#define NOISETYPE_PINK 1
+#define NOISETYPE_RED 2
+#define NOISETYPE_DECIM 3
+#define NOISETYPE_COUNT 4
+
+#define TARGETSELECT_VOLUME 1
+#define TARGETSELECT_MOD 2
+
 #include "noisegen.hpp"
 #include "white.hpp"
 #include "pink.hpp"
 #include "red.hpp"
 #include "decim.hpp"
 #include "state.hpp"
+#include "noisegenmanager.hpp"
 
 extern "C" int __aeabi_atexit(
         void *object,
@@ -31,7 +48,8 @@ extern "C" void operator delete(void*)
 
 void* __dso_handle = nullptr;
 
-static State s = {};
+static State s = State();
+static NoiseGenManager noiseGens(&s);
 
 void calculateReleaseResistance()
 {
@@ -68,12 +86,6 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.attackPhaseComplete = false;
 
     s.noiseType = NOISETYPE_WHITE;
-
-    // add noise generators to state array
-    s.noiseGens[NOISETYPE_WHITE] = &(s.whiteNoise);
-    s.noiseGens[NOISETYPE_PINK] = &(s.pinkNoise);
-    s.noiseGens[NOISETYPE_RED] = &(s.redNoise);
-    s.noiseGens[NOISETYPE_DECIM] = &(s.decimNoise);
 
     s.lfoTarget = TARGETSELECT_VOLUME;
 }
@@ -132,8 +144,8 @@ void getNewLevel()
 
 float genNoise()
 {
-    s.noiseGens[s.noiseType]->Tick();
-    return s.noiseGens[s.noiseType]->GetValue();
+    noiseGens[s.noiseType]->Tick();
+    return noiseGens[s.noiseType]->GetValue();
 }
 
 void OSC_CYCLE(const user_osc_param_t * const params,
@@ -150,7 +162,7 @@ void OSC_CYCLE(const user_osc_param_t * const params,
         // Get level, modify it, and apply it
         getNewLevel();
         float level = s.currentLevel;
-        if (s.lfoTarget | TARGETSELECT_VOLUME)
+        if (s.lfoTarget & TARGETSELECT_VOLUME)
         {
             level = clip01f(level + q31_to_f32(params->shape_lfo));
         }
@@ -215,11 +227,11 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             break;
 
         case k_user_osc_param_id4: // Decimate
-            s.decimNoise.SetDecimationFactor(value);
+            s.modValue = value - 100;
             break;
 
         case k_user_osc_param_id5: // LFO target
-            s.lfoTarget = value + 1;
+            s.lfoTarget = value;
             break;
 
 
