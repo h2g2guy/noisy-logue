@@ -63,9 +63,9 @@ void Filter::calculateConstants(float cutoff, bool isHighPass)
     b2 = b2 / a0;
 }
 
-float ModValueToFrequency(int modValue, float lfo)
+float ModValueToFrequency(int modValue, float modulation)
 {
-    float x = (float)modValue + (lfo * 100.f);
+    float x = (float)modValue + (modulation * 100.f);
     if (modValue < 0)
     {
         x += 100.f;

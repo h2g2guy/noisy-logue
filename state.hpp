@@ -12,8 +12,6 @@
 #define TARGETSELECT_VOLUME 1
 #define TARGETSELECT_MOD 2
 
-// Forward declarations to avoid circular dependencies
-
 struct State
 {
 public:
@@ -34,6 +32,7 @@ public:
 
     int32_t modValue;
 
-    int lfoTarget;
+    int32_t lfoTarget;
+    int32_t envToModPercentage;
 };
 

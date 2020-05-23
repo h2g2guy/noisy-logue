@@ -16,8 +16,9 @@ DecimatedNoise::DecimatedNoise(State* s) : NoiseGenerator(s)
 
 void DecimatedNoise::Tick()
 {
-    // calculate decimation factor from mod value and LFO (as necessary)
+    // calculate decimation factor from mod value plus the envelope and/or LFO (as necessary)
     int32_t factor = state->modValue * 2;
+    factor -= static_cast<int>(state->envToModPercentage * state->currentLevel) * 2;
     if (state->lfoTarget & TARGETSELECT_MOD)
     {
         factor += static_cast<int>(state->lfoLevel * 100);

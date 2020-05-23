@@ -56,8 +56,21 @@ float PinkNoise::GetValue()
     }
 
     // filter is engaged
-    bool isLfoEngaged = (state->lfoTarget & TARGETSELECT_MOD);
-    float cutoff = ModValueToFrequency(state->modValue, (isLfoEngaged ? state->lfoLevel : 0.f));
+    float modulation = 0.f;
+
+    // account for LFO modulation
+    if (state->lfoTarget & TARGETSELECT_MOD)
+    {
+        modulation += state->lfoLevel;
+    }
+
+    // account for envelope modulation
+    if (state->envToModPercentage != 0)
+    {
+        modulation += ((float)state->envToModPercentage / 100.f) * state->currentLevel;
+    }
+
+    float cutoff = ModValueToFrequency(state->modValue, modulation);
     output = filter.Process(output, cutoff, state->modValue > 0);
 
     return output;

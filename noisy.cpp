@@ -88,6 +88,7 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.modValue = 101; //set to an impossible sentinel value to workaround weird prologue bug
 
     s.lfoTarget = TARGETSELECT_VOLUME;
+    s.envToModPercentage = 101; //set to an impossible sentinel value to workaround weird prologue bug
 }
 
 bool targetLevelReached(float targetLevel, float currentLevel)
@@ -155,19 +156,40 @@ void OSC_CYCLE(const user_osc_param_t * const params,
     s.lfoLevel = q31_to_f32(params->shape_lfo);
 
     float output = 0.f;
+    float level = 0.f;
 
     for (uint32_t i = 0; i < frames; i++)
     {
-        // Generate noise of the right type
         output = genNoise();
 
-        // Get level, modify it, and apply it
         getNewLevel();
-        float level = s.currentLevel;
-        if (s.lfoTarget & TARGETSELECT_VOLUME)
+
+        if (s.envToModPercentage == 0)
         {
-            level = clip01f(level + s.lfoLevel);
+            // apply the envelope to the signal
+            level = s.currentLevel;
+
+            // apply lfo if present
+            if (s.lfoTarget & TARGETSELECT_VOLUME)
+            {
+                level = clip01f(level + s.lfoLevel);
+            }
         }
+        else
+        {
+            // envelope is being applied to noise mod; ignore it here
+
+            if (s.lfoTarget & TARGETSELECT_VOLUME)
+            {
+                // center the noise level
+                level = clip01f(0.5f + (s.lfoLevel / 0.5f));
+            }
+            else
+            {
+                level = 1.f;
+            }
+        }
+
         output *= level;
 
         // Output
@@ -191,6 +213,18 @@ void OSC_NOTEOFF(const user_osc_param_t * const params)
     s.noteDown = false;
 }
 
+void setBipolarValueWithWorkaround(uint16_t value, int32_t& target)
+{
+    if (value == 0 && target == 101)
+    {
+        // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it
+        // should instead be the correctly-scaled zero point. account for that case here.
+        target = 0;
+        return;
+    }
+    target = value - 100;
+}
+
 void OSC_PARAM(uint16_t index, uint16_t value)
 {
     switch (index)
@@ -210,18 +244,8 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             break;
 
         case k_user_osc_param_id2: // Release
-            {
-                if (value == 0 && s.releaseFactor == 101)
-                {
-                    // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it
-                    // should instead be the correctly-scaled zero point. account for that case here.
-                    s.releaseFactor = 0;
-                    calculateReleaseResistance();
-                    break;
-                }
-                s.releaseFactor = value - 100;
-                calculateReleaseResistance();
-            }
+            setBipolarValueWithWorkaround(value, s.releaseFactor);
+            calculateReleaseResistance();
             break;
 
         case k_user_osc_param_id3: // Noise Type
@@ -229,23 +253,16 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             break;
 
         case k_user_osc_param_id4: // Noise mod
-            {
-                if (value == 0 && s.modValue == 101)
-                {
-                    // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it
-                    // should instead be the correctly-scaled zero point. account for that case here.
-                    s.modValue = 0;
-                    break;
-                }
-                s.modValue = value - 100;
-                calculateReleaseResistance();
-            }
+            setBipolarValueWithWorkaround(value, s.modValue);
             break;
 
         case k_user_osc_param_id5: // LFO target
             s.lfoTarget = value;
             break;
 
+        case k_user_osc_param_id6: // Env -> Mod
+            setBipolarValueWithWorkaround(value, s.envToModPercentage);
+            break;
 
         default:
             break;
