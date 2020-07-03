@@ -9,8 +9,25 @@
 
 #include "userosc.h"
 
-#define TARGETSELECT_VOLUME 1
-#define TARGETSELECT_MOD 2
+class LfoTargetFlags
+{
+public:
+    typedef enum : int32_t
+    {
+        None = 0,
+        Volume = 1,
+        NoiseMod = 2
+    } enum_type;
+
+    LfoTargetFlags(enum_type targets = None) : value(targets) { }
+
+    operator enum_type() const { return value; }
+
+    bool operator&(int32_t operand) { return static_cast<int32_t>(value) & operand; }
+
+private:
+    enum_type value;
+};
 
 struct State
 {
@@ -32,7 +49,7 @@ public:
 
     int32_t modValue;
 
-    int32_t lfoTarget;
+    int32_t lfoTarget; // bitfield of LfoTargetFlags
     int32_t envToModPercentage;
 };
 

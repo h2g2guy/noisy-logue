@@ -7,8 +7,6 @@
  *
  */
 
-#define PINK_NUM_BUFFERS 8
-
 #include "noisegen.hpp"
 #include "state.hpp"
 #include "twopole.hpp"
@@ -24,7 +22,8 @@ public:
     virtual ~PinkNoise() override {};
 
 private:
-    float buffers[PINK_NUM_BUFFERS];
+    static constexpr size_t numberOfBuffers = 8;
+    float buffers[numberOfBuffers];
     unsigned int tick;
     Filter filter;
 };

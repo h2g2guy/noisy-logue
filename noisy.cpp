@@ -6,19 +6,6 @@
  *
  */
 
-#define ATTACK_MULT 480
-#define DECAY_MULT 48000.f
-#define RELEASE_MULT_POS 480
-
-#define CAPACITANCE 1
-#define TARGET_LEVEL_OFFSET 0.01f
-
-#define NOISETYPE_WHITE 0
-#define NOISETYPE_PINK 1
-#define NOISETYPE_RED 2
-#define NOISETYPE_DECIM 3
-#define NOISETYPE_COUNT 4
-
 #include "noisegen.hpp"
 #include "white.hpp"
 #include "pink.hpp"
@@ -26,6 +13,15 @@
 #include "decim.hpp"
 #include "state.hpp"
 #include "noisegenmanager.hpp"
+
+// Attack and release multipliers are relative to menu items, which are 0-100
+// Decay multiplier is relative to the Shape knob, which is a q31
+constexpr int32_t attackMultiplier = 480;
+constexpr float decayMultiplier = 48000.f;
+constexpr int32_t releaseMultiplierPositive = 480;
+
+constexpr float capacitance = 1.f;
+constexpr float targetLevelOffset = 0.01f;
 
 extern "C" int __aeabi_atexit(
         void *object,
@@ -55,7 +51,7 @@ void calculateReleaseResistance()
     // If it's less than zero, add 100 and use that as a percentage of decay resistance.
     if (s.releaseFactor >= 0)
     {
-        s.releaseResistance = s.releaseFactor * RELEASE_MULT_POS + s.decayResistance;
+        s.releaseResistance = s.releaseFactor * releaseMultiplierPositive + s.decayResistance;
     }
     else
     {
@@ -70,6 +66,7 @@ void OSC_INIT(uint32_t platform, uint32_t api)
 {
     (void)platform;
     (void)api;
+
     s.currentLevel = 0.f;
     s.lfoLevel = 0.f;
 
@@ -83,11 +80,11 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.noteDown = false;
     s.attackPhaseComplete = false;
 
-    s.noiseType = NOISETYPE_WHITE;
+    s.noiseType = static_cast<int32_t>(NoiseType::White);
 
     s.modValue = 101; //set to an impossible sentinel value to workaround weird prologue bug
 
-    s.lfoTarget = TARGETSELECT_VOLUME;
+    s.lfoTarget = 1;
     s.envToModPercentage = 101; //set to an impossible sentinel value to workaround weird prologue bug
 }
 
@@ -101,19 +98,19 @@ bool targetLevelReached(float targetLevel, float currentLevel)
     }
     else if (targetLevel > currentLevel)
     {
-        offsetTarget = targetLevel - TARGET_LEVEL_OFFSET;
+        offsetTarget = targetLevel - targetLevelOffset;
         return currentLevel > offsetTarget;
     }
     else
     {
-        offsetTarget = targetLevel + TARGET_LEVEL_OFFSET;
+        offsetTarget = targetLevel + targetLevelOffset;
         return currentLevel < offsetTarget;
     }
 }
 
 float getChangeInLevel(float targetLevel, float currentLevel, float resistance)
 {
-    return (targetLevel / resistance) - (currentLevel / (resistance * CAPACITANCE));
+    return (targetLevel / resistance) - (currentLevel / (resistance * capacitance));
 }
 
 void getNewLevel()
@@ -170,7 +167,7 @@ void OSC_CYCLE(const user_osc_param_t * const params,
             level = s.currentLevel;
 
             // apply lfo if present
-            if (s.lfoTarget & TARGETSELECT_VOLUME)
+            if (s.lfoTarget & LfoTargetFlags::Volume)
             {
                 level = clip01f(level + s.lfoLevel);
             }
@@ -179,7 +176,7 @@ void OSC_CYCLE(const user_osc_param_t * const params,
         {
             // envelope is being applied to noise mod; ignore it here
 
-            if (s.lfoTarget & TARGETSELECT_VOLUME)
+            if (s.lfoTarget & LfoTargetFlags::NoiseMod)
             {
                 // center the noise level
                 level = clip01f(0.5f + (s.lfoLevel / 0.5f));
@@ -230,7 +227,7 @@ void OSC_PARAM(uint16_t index, uint16_t value)
     switch (index)
     {
         case k_user_osc_param_shape: // Decay
-            s.decayResistance = param_val_to_f32(value) * DECAY_MULT;
+            s.decayResistance = param_val_to_f32(value) * decayMultiplier;
             s.decayResistance++;
             calculateReleaseResistance(); // release is based on decay, so recalculate it here
             break;
@@ -240,7 +237,7 @@ void OSC_PARAM(uint16_t index, uint16_t value)
             break;
 
         case k_user_osc_param_id1: // Attack
-            s.attackResistance = value * ATTACK_MULT + 1;
+            s.attackResistance = value * attackMultiplier + 1;
             break;
 
         case k_user_osc_param_id2: // Release

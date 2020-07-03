@@ -1,6 +1,6 @@
 
 /*
- * File: noisy.cpp
+ * File: pink.cpp
  *
  * Pink noise generator from white noise
  *
@@ -12,7 +12,7 @@
 PinkNoise::PinkNoise(State* s) : NoiseGenerator(s)
 {
     // initialize buffers
-    for (int i = 0; i < PINK_NUM_BUFFERS; i++)
+    for (size_t i = 0; i < numberOfBuffers; i++)
     {
         buffers[i] = osc_white();
     }
@@ -27,7 +27,7 @@ void PinkNoise::Tick()
     buffers[0] = osc_white();
 
     // move through the bits; at the first point at which we are not divisible, update that sample and stop
-    for (int i = 0; i < PINK_NUM_BUFFERS; i++)
+    for (size_t i = 0; i < numberOfBuffers; i++)
     {
         if (tick % (1 << i) != 0)
         {
@@ -40,11 +40,11 @@ void PinkNoise::Tick()
 float PinkNoise::GetValue()
 {
     float output = 0;
-    for (int i = 1; i < PINK_NUM_BUFFERS; i++)
+    for (size_t i = 1; i < numberOfBuffers; i++)
     {
         output += buffers[i];
     }
-    output /= (float) PINK_NUM_BUFFERS / 2.f;
+    output /= (float) numberOfBuffers / 2.f;
 
     // handle the filter
     if (state->modValue == 0)
@@ -59,7 +59,7 @@ float PinkNoise::GetValue()
     float modulation = 0.f;
 
     // account for LFO modulation
-    if (state->lfoTarget & TARGETSELECT_MOD)
+    if (state->lfoTarget & LfoTargetFlags::NoiseMod)
     {
         modulation += state->lfoLevel;
     }

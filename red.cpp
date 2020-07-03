@@ -36,7 +36,7 @@ float RedNoise::GetValue()
     float modulation = 0.f;
 
     // account for LFO modulation
-    if (state->lfoTarget & TARGETSELECT_MOD)
+    if (state->lfoTarget & LfoTargetFlags::NoiseMod)
     {
         modulation += state->lfoLevel;
     }

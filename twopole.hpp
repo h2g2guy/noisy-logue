@@ -7,6 +7,8 @@
  *
  */
 
+#include "float_math.h"
+
 class Filter
 {
 public:
@@ -15,7 +17,7 @@ public:
 
 private:
     float a1, a2, b0, b1, b2; // normalized by dividing by a0
-    const float q = 0.707f; // always use sqrt(2) for a predictable curve
+    const float q = M_1_SQRT2; // always use 1/sqrt(2) for a predictable curve
     float x1, x2; // previous two samples
     float y1, y2; // previous two results
 
