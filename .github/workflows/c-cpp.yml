@@ -23,7 +23,8 @@ jobs:
         with:
           repository: korginc/logue-sdk
           path: logue-sdk
-          
+          submodules: recursive
+
       - name: install tooling
         run: sudo apt-get install gcc-arm-none-eabi
       
