@@ -75,17 +75,17 @@ void OSC_INIT(uint32_t platform, uint32_t api)
     s.sustainLevel = 0.f;
     s.releaseFactor = 0;
     calculateReleaseResistance();
-    s.releaseFactor = 101; //set to an impossible sentinel value to workaround weird prologue bug
+    s.releaseFactor = 0;
 
     s.noteDown = false;
     s.attackPhaseComplete = false;
 
     s.noiseType = static_cast<int32_t>(NoiseType::White);
 
-    s.modValue = 101; //set to an impossible sentinel value to workaround weird prologue bug
+    s.modValue = 0;
 
     s.lfoTarget = 1;
-    s.envToModPercentage = 101; //set to an impossible sentinel value to workaround weird prologue bug
+    s.envToModPercentage = 0;
 }
 
 bool targetLevelReached(float targetLevel, float currentLevel)
@@ -212,7 +212,7 @@ void OSC_NOTEOFF(const user_osc_param_t * const params)
 
 void setBipolarValueWithWorkaround(uint16_t value, int32_t& target)
 {
-    if (value == 0 && target == 101)
+    if (value == 0)
     {
         // seems to be a weird case where, on initialization, stuff gets forcibly set to minimum when it
         // should instead be the correctly-scaled zero point. account for that case here.
