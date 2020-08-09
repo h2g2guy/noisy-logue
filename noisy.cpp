@@ -23,23 +23,17 @@ constexpr int32_t releaseMultiplierPositive = 480;
 constexpr float capacitance = 1.f;
 constexpr float targetLevelOffset = 0.01f;
 
-extern "C" int __aeabi_atexit(
-        void *object,
-        void (*destructor)(void *),
-        void *dso_handle)
-{
-    static_cast<void>(object);
-    static_cast<void>(destructor);
-    static_cast<void>(dso_handle);
-    return 0;
-}
-
-extern "C" void operator delete(void*)
+// We're not using the heap. But virtual destructors 'imply' calls to delete functions, so we'll define some dummy
+// versions here.
+void operator delete(void*)
 {
     return;
 }
 
-void* __dso_handle = nullptr;
+void operator delete(void*, size_t)
+{
+    return;
+}
 
 static State s = State();
 static NoiseGenManager noiseGens(&s);
