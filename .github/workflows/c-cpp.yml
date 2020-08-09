@@ -24,8 +24,16 @@ jobs:
           repository: h2g2guy/logue-sdk
           path: logue-sdk
           submodules: recursive
+          
+      - name: cache tooling installation
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: logue-sdk/tools/gcc/gcc-arm-none-eabi-9-2020-q2-update
+          key: gcc-9-2020-q2-update
 
       - name: install tooling
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           pushd logue-sdk/tools/gcc
           ./get_gcc_linux.sh -s
