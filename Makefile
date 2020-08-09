@@ -39,16 +39,16 @@ include ./project.mk
 MCU = cortex-m4
 
 GCC_TARGET = arm-none-eabi-
-GCC_BIN_PATH = $(TOOLSDIR)/gcc/gcc-arm-none-eabi-5_4-2016q3/bin
+GCC_BIN_PATH = $(TOOLSDIR)/gcc/gcc-arm-none-eabi-9-2020-q2-update/bin
 
-CC   = $(GCC_TARGET)gcc
-CXXC = $(GCC_TARGET)g++
-LD   = $(GCC_TARGET)gcc
-CP   = $(GCC_TARGET)objcopy
-AS   = $(GCC_TARGET)gcc -x assembler-with-cpp
-AR   = $(GCC_TARGET)ar
-OD   = $(GCC_TARGET)objdump
-SZ   = $(GCC_TARGET)size
+CC   = $(GCC_BIN_PATH)/$(GCC_TARGET)gcc
+CXXC = $(GCC_BIN_PATH)/$(GCC_TARGET)g++
+LD   = $(GCC_BIN_PATH)/$(GCC_TARGET)gcc
+CP   = $(GCC_BIN_PATH)/$(GCC_TARGET)objcopy
+AS   = $(GCC_BIN_PATH)/$(GCC_TARGET)gcc -x assembler-with-cpp
+AR   = $(GCC_BIN_PATH)/$(GCC_TARGET)ar
+OD   = $(GCC_BIN_PATH)/$(GCC_TARGET)objdump
+SZ   = $(GCC_BIN_PATH)/$(GCC_TARGET)size
 
 HEX  = $(CP) -O ihex
 BIN  = $(CP) -O binary
@@ -61,8 +61,8 @@ DLIBS = -lm
 DADEFS = -DSTM32F401xC -DCORTEX_USE_FPU=TRUE -DARM_MATH_CM4
 DDEFS = -DSTM32F401xC -DCORTEX_USE_FPU=TRUE -DARM_MATH_CM4 -D__FPU_PRESENT
 
-COPT = -std=c11 -mstructure-size-boundary=8
-CXXOPT = -std=c++11 -fno-rtti -fno-exceptions -fno-non-call-exceptions
+COPT = -std=c11
+CXXOPT = -std=c++17 -fno-rtti -fno-exceptions -fno-non-call-exceptions
 
 LDOPT = -Xlinker --just-symbols=$(LDDIR)/osc_api.syms
 
@@ -115,7 +115,8 @@ DINCDIR = $(PROJECTDIR)/inc \
           $(PLATFORMDIR)/inc \
 	  $(PLATFORMDIR)/inc/dsp \
 	  $(PLATFORMDIR)/inc/utils \
-          $(CMSISDIR)/Include
+          $(CMSISDIR)/Core/Include \
+          $(CMSISDIR)/DSP/Include \
 
 INCDIR := $(patsubst %,-I%,$(DINCDIR) $(UINCDIR))
 
@@ -136,7 +137,7 @@ ODFLAGS	  = -x --syms
 ASFLAGS   = $(MCFLAGS) -g $(TOPT) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.s=.lst)) $(ADEFS)
 ASXFLAGS  = $(MCFLAGS) -g $(TOPT) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.S=.lst)) $(ADEFS)
 CFLAGS    = $(MCFLAGS) $(TOPT) $(OPT) $(COPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
-CXXFLAGS  = $(MCFLAGS) $(TOPT) $(OPT) $(CXXOPT) $(CXXWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.cpp=.lst)) $(DEFS)
+CXXFLAGS  = $(MCFLAGS) $(TOPT) $(OPT) $(CXXOPT) $(CXXWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.cpp=.lst)) $(DEFS) -fno-use-cxa-atexit
 LDFLAGS   = $(MCFLAGS) $(TOPT) $(OPT) -nostartfiles $(LIBDIR) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--library-path=$(RULESPATH),--script=$(LDSCRIPT) $(LDOPT)
 
 OUTFILES := $(BUILDDIR)/$(PROJECT).elf \

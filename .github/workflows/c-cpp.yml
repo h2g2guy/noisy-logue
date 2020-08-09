@@ -21,12 +21,15 @@ jobs:
       - name: checkout logue-sdk
         uses: actions/checkout@v2
         with:
-          repository: korginc/logue-sdk
+          repository: h2g2guy/logue-sdk
           path: logue-sdk
           submodules: recursive
 
       - name: install tooling
-        run: sudo apt-get install gcc-arm-none-eabi
+        run: |
+          pushd logue-sdk/tools/gcc
+          ./get_gcc_linux.sh -s
+          popd
       
       - name: make
         run: |
