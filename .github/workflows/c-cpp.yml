@@ -26,7 +26,10 @@ jobs:
           submodules: recursive
 
       - name: install tooling
-        run: sudo apt-get install gcc-arm-none-eabi
+        run: |
+          cd logue-sdk/tools/gcc
+          ./get_gcc_linux.sh
+          cd ../../..
       
       - name: make
         run: |
