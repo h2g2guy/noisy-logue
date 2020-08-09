@@ -27,9 +27,9 @@ jobs:
 
       - name: install tooling
         run: |
-          cd logue-sdk/tools/gcc
-          ./get_gcc_linux.sh
-          cd ../../..
+          pushd logue-sdk/tools/gcc
+          ./get_gcc_linux.sh -s
+          popd
       
       - name: make
         run: |
