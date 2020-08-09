@@ -30,7 +30,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: logue-sdk/tools/gcc/gcc-arm-none-eabi-9-2020-q2-update
-          key: gcc-${{ runner.os }}-${{ hashFiles('logue-sdk/tools/gcc/get-gcc-linux.sh') }}
+          key: gcc-${{ runner.os }}-${{ hashFiles('logue-sdk/tools/gcc/get_gcc_linux.sh') }}
 
       - name: install tooling
         if: steps.cache.outputs.cache-hit != 'true'
