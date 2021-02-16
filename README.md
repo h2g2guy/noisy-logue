@@ -1,4 +1,6 @@
 # noisy-logue
+![build](https://github.com/h2g2guy/noisy-logue/workflows/C/C++%20CI/badge.svg)
+
 A simple, enveloped noise oscillator for the Korgue *logue series of synths.
 
 ## What?
